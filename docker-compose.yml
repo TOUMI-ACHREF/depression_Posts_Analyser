@@ -1,0 +1,82 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: depression_posts_mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: depression_posts
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: depression_posts_api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      # Toujours le Mongo du compose (jamais un Mongo Windows local)
+      RUNNING_IN_DOCKER: "1"
+      MONGO_URI: mongodb://mongo:27017
+      MONGO_DB: depression_posts
+      API_HOST: 0.0.0.0
+      API_PORT: 8000
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+  facebook-scraper:
+    build:
+      context: .
+      dockerfile: Dockerfile.scraper
+    container_name: depression_posts_fb_scraper
+    env_file:
+      - .env
+    environment:
+      RUNNING_IN_DOCKER: "1"
+      MONGO_URI: mongodb://mongo:27017
+      MONGO_DB: depression_posts
+      SCRAPE_HASHTAG: "#Depression"
+    volumes:
+      - ./scripts:/app/scripts
+    depends_on:
+      mongo:
+        condition: service_healthy
+    profiles:
+      - scrape
+
+  twitter-scraper:
+    build:
+      context: .
+      dockerfile: Dockerfile.scraper
+    container_name: depression_posts_tw_scraper
+    env_file:
+      - .env
+    environment:
+      RUNNING_IN_DOCKER: "1"
+      MONGO_URI: mongodb://mongo:27017
+      MONGO_DB: depression_posts
+      SCRAPE_HASHTAG: "#Depression"
+    volumes:
+      - ./scripts/twitter_cookies.json:/app/scripts/twitter_cookies.json
+    depends_on:
+      mongo:
+        condition: service_healthy
+    profiles:
+      - scrape
+    command: ["python", "scripts/run_twitter_scraper.py", "--limit", "20"]
+
+volumes:
+  mongo_data:

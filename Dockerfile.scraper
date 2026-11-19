@@ -1,0 +1,21 @@
+# Image scraper (Twitter/Facebook) avec Playwright + Chromium
+FROM mcr.microsoft.com/playwright/python:v1.49.1-jammy
+
+WORKDIR /app
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    MONGO_URI=mongodb://mongo:27017 \
+    MONGO_DB=depression_posts
+
+COPY requirements.txt .
+RUN pip install --upgrade pip && pip install -r requirements.txt
+
+COPY src ./src
+COPY scripts ./scripts
+
+# Session Facebook (monté aussi en volume au runtime)
+RUN mkdir -p /app/scripts
+
+CMD ["python", "scripts/run_facebook_scraper.py", "--limit", "10"]

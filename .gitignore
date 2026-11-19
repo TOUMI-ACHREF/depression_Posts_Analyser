@@ -1,0 +1,13 @@
+.env
+.env.local
+scripts/output/
+scripts/twitter_cookies.json
+scripts/fb_storage.json
+**/cookies.json
+tmp_mongo_dump/
+__pycache__/
+*.pyc
+.venv/
+venv/
+.idea/
+.vscode/

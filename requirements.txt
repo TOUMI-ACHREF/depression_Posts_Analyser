@@ -1,0 +1,10 @@
+requests>=2.31.0
+pymongo>=4.6.0
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+transformers>=4.44.0
+torch>=2.2.0
+# twikit upstream (2.3.3) cassé en 2026 — fork maintenu (import: from twikit import Client)
+twifork[impersonate]>=2.4.0
+playwright>=1.40.0
+

@@ -1,0 +1,16 @@
+.git
+.venv
+venv
+__pycache__
+*.pyc
+.env
+.env.local
+.idea
+.vscode
+scripts/output
+scripts/twitter_cookies.json
+**/cookies.json
+agent-tools
+*.md
+Dockerfile
+docker-compose.yml
